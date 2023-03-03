@@ -4,7 +4,6 @@ idf_component_register(SRC_DIRS . src radio/src  mac/src crypto/src board/src ti
                                     esp_common 
                                     esp_event 
                                     nvs_flash 
-                                    System
-                                    Gpio
                                     esp_timer
+                                    driver
                                     )
