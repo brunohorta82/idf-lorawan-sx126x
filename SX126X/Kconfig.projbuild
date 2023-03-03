@@ -1,0 +1,46 @@
+menu "SX126X" 
+    config SPI_MISO
+        int "MISO Pin"
+        default 13
+    config SPI_MOSI
+        int "MOSI Pin"
+        default 11
+    config SPI_SCLK
+        int "SCLK Pin"
+        default 12
+    config LORA_NSS
+        int "NSS Pin"
+        default 10
+    config LORA_RESET
+        int "RESET Pin"
+        default 21
+    config LORA_BUSY
+        int "BUSY Pin"
+        default 20
+    config LORA_DIO1
+        int "DIO1 Pin"
+        default 19
+    config DIO2_ENABLE
+        bool "DIO2 Enable"
+        default n
+    config LORA_DIO2
+        depends on DIO2_ENABLE
+        int "DIO2 Pin"
+        default -1
+    config DIO3_ENABLE
+        bool "DIO3 Enable"
+        default n
+    config LORA_DIO3
+        depends on DIO3_ENABLE
+        int "DIO3 Pin"
+        default -1
+    config RADIO_TXEN
+        int "RADIO TX Enable Pin"
+        default -1
+    config RADIO_RXEN
+        int "RADIO RX Enable Pin"
+        default -1
+    config LORAWAN_OTAA
+        bool  "LORAWAN OTAA"
+        default y
+endmenu
