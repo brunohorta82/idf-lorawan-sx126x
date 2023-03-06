@@ -177,7 +177,7 @@
 #define US915_BAND0                 \
 	{                               \
 		1, US915_MAX_TX_POWER, 0, 0 \
-	} //  100.0 %
+	}
 
 /*!
  * Defines the first channel for RX window 1 for US band

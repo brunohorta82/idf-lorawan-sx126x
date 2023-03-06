@@ -15,7 +15,6 @@ RadioState_t RadioGetStatus(void);
 
 void RadioSetModem(RadioModems_t modem);
 
-
 void RadioSetChannel(uint32_t freq);
 
 bool RadioIsChannelFree(RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime);
@@ -266,7 +265,6 @@ void RadioSetPublicNetwork(bool enable);
  */
 uint32_t RadioGetWakeupTime(void);
 
-
 void RadioBgIrqProcess(void);
 
 /*!
@@ -404,7 +402,7 @@ RadioModems_t _modem;
 /*!
  * @brief DIO 0 IRQ callback
  */
-void RadioOnDioIrq(void*);
+void RadioOnDioIrq(void *);
 
 /*!
  * @brief Tx timeout timer callback
@@ -425,11 +423,11 @@ void RadioOnRxTimeoutIrq(void);
  */
 typedef struct
 {
-	bool Previous;
-	bool Current;
+	bool Previous{};
+	bool Current{};
 } RadioPublicNetwork_t;
 
-static RadioPublicNetwork_t RadioPublicNetwork = {false};
+static RadioPublicNetwork_t RadioPublicNetwork = {};
 
 /*!
  * Radio callbacks variable
@@ -577,7 +575,7 @@ bool RadioIsChannelFree(RadioModems_t modem, uint32_t freq, int16_t rssiThresh, 
 
 	RadioRx(0);
 
-	 delay(1);
+	delay(1);
 
 	carrierSenseTime = TimerGetCurrentTime();
 
@@ -943,7 +941,7 @@ void RadioSend(uint8_t *buffer, uint8_t size)
 
 void RadioSleep(void)
 {
-	SleepParams_t params = {0};
+	SleepParams_t params = {};
 
 	params.Fields.WarmStart = 1;
 	SX126xSetSleep(params);
@@ -1166,12 +1164,11 @@ void RadioOnRxTimeoutIrq(void)
 	TimerStop(&RxTimeoutTimer);
 }
 
-
 /** Semaphore used by SX126x IRQ handler to wake up LoRaWAN task */
 extern SemaphoreHandle_t _lora_sem;
 static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
 
-void IRAM_ATTR RadioOnDioIrq(void*)
+void IRAM_ATTR RadioOnDioIrq(void *)
 {
 	BoardDisableIrq();
 	IrqFired = true;

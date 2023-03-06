@@ -47,9 +47,7 @@ static ChannelParams_t Channels[US915_MAX_NB_CHANNELS];
 /*!
  * LoRaMac bands
  */
-static Band_t Bands[US915_MAX_NB_BANDS] =
-	{
-		US915_BAND0};
+static Band_t Bands[] = {US915_BAND0};
 
 /*!
  * LoRaMac channels mask

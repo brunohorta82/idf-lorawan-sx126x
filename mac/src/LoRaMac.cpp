@@ -4,7 +4,8 @@
 #include "Region.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
-
+#include <esp_log.h>
+#define LORA_TAG "LORA"
 extern bool lmh_mac_is_busy;
 
 /*!
@@ -592,7 +593,7 @@ static void ResetMacParameters(void);
 
 static void OnRadioTxDone(void)
 {
-	ESP_LOGI("LM", "OnRadioTxDone");
+	ESP_LOGI(LORA_TAG, "OnRadioTxDone");
 
 	GetPhyParams_t getPhy;
 	PhyParam_t phyParam;
@@ -607,7 +608,7 @@ static void OnRadioTxDone(void)
 	// Setup timers
 	if (IsRxWindowsEnabled == true)
 	{
-		ESP_LOGI("LM", "OnRadioTxDone => RX Windows #1 %ld #2 %ld", RxWindow1Delay, RxWindow2Delay);
+		ESP_LOGI(LORA_TAG, "OnRadioTxDone => RX Windows #1 %ld #2 %ld", RxWindow1Delay, RxWindow2Delay);
 
 		TimerSetValue(&RxWindowTimer1, RxWindow1Delay);
 		TimerStart(&RxWindowTimer1);
@@ -636,7 +637,7 @@ static void OnRadioTxDone(void)
 	// Verify if the last uplink was a join request
 	if ((LoRaMacFlags.Bits.MlmeReq == 1) && (MlmeConfirm.MlmeRequest == MLME_JOIN))
 	{
-		ESP_LOGI("LM", "OnRadioTxDone => TX was Join Request");
+		ESP_LOGI(LORA_TAG, "OnRadioTxDone => TX was Join Request");
 
 		LastTxIsJoinRequest = true;
 	}
@@ -684,7 +685,7 @@ static void PrepareRxDoneAbort(void)
 
 static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-	ESP_LOGI("LM", "OnRadioRxDone");
+	ESP_LOGI(LORA_TAG, "OnRadioRxDone");
 
 	LoRaMacHeader_t macHdr;
 	LoRaMacFrameCtrl_t fCtrl;
@@ -736,7 +737,7 @@ static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 	switch (macHdr.Bits.MType)
 	{
 	case FRAME_TYPE_JOIN_ACCEPT:
-		ESP_LOGI("LM", "OnRadioRxDone => FRAME_TYPE_JOIN_ACCEPT");
+		ESP_LOGD(LORA_TAG, "OnRadioRxDone => FRAME_TYPE_JOIN_ACCEPT");
 
 		if (IsLoRaMacNetworkJoined == JOIN_OK)
 		{
@@ -799,12 +800,14 @@ static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 		}
 		break;
 	case FRAME_TYPE_DATA_CONFIRMED_DOWN:
-		ESP_LOGI("LM", "OnRadioRxDone => FRAME_TYPE_DATA_CONFIRMED_DOWN");
+	{
+		ESP_LOGD(LORA_TAG, "OnRadioRxDone => FRAME_TYPE_DATA_CONFIRMED_DOWN");
+	}
 	case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
 	{
 		if (macHdr.Bits.MType == FRAME_TYPE_DATA_UNCONFIRMED_DOWN)
 		{
-			ESP_LOGI("LM", "OnRadioRxDone => FRAME_TYPE_DATA_UNCONFIRMED_DOWN");
+			ESP_LOGD(LORA_TAG, "OnRadioRxDone => FRAME_TYPE_DATA_UNCONFIRMED_DOWN");
 		}
 
 		// Check if the received payload size is valid
@@ -1092,7 +1095,7 @@ static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 	break;
 	case FRAME_TYPE_PROPRIETARY:
 	{
-		ESP_LOGI("LM", "OnRadioRxDone => FRAME_TYPE_PROPRIETARY");
+		ESP_LOGI(LORA_TAG, "OnRadioRxDone => FRAME_TYPE_PROPRIETARY");
 
 		memcpy1(LoRaMacRxPayload, &payload[pktHeaderLen], size);
 
@@ -1105,7 +1108,7 @@ static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 		break;
 	}
 	default:
-		ESP_LOGI("LM", "OnRadioRxDone => UNKNOWN FRAME TYPE");
+		ESP_LOGI(LORA_TAG, "OnRadioRxDone => UNKNOWN FRAME TYPE");
 
 		McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 		PrepareRxDoneAbort();
@@ -1122,7 +1125,7 @@ static void OnRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 
 static void OnRadioTxTimeout(void)
 {
-	ESP_LOGI("LM", "OnRadioTxTimeout");
+	ESP_LOGI(LORA_TAG, "OnRadioTxTimeout");
 
 	if (LoRaMacDeviceClass != CLASS_C)
 	{
@@ -1140,7 +1143,7 @@ static void OnRadioTxTimeout(void)
 
 static void OnRadioRxError(void)
 {
-	ESP_LOGI("LM", "OnRadioRxError");
+	ESP_LOGI(LORA_TAG, "OnRadioRxError");
 
 	if (LoRaMacDeviceClass != CLASS_C)
 	{
@@ -1177,7 +1180,7 @@ static void OnRadioRxError(void)
 
 static void OnRadioRxTimeout(void)
 {
-	ESP_LOGI("LM", "OnRadioRxTimeout");
+	ESP_LOGI(LORA_TAG, "OnRadioRxTimeout");
 
 	if (LoRaMacDeviceClass != CLASS_C)
 	{
@@ -1263,7 +1266,7 @@ static void OnMacStateCheckTimerEvent(void)
 					}
 					else
 					{
-						ESP_LOGI("LM", "Join network failed %d time(s)\n", JoinRequestTrials);
+						ESP_LOGI(LORA_TAG, "Join network failed %d time(s)\n", JoinRequestTrials);
 
 						IsLoRaMacNetworkJoined = JOIN_FAILED;
 						if (JoinRequestTrials >= MaxJoinRequestTrials)
@@ -1386,7 +1389,7 @@ static void OnMacStateCheckTimerEvent(void)
 	}
 	if (LoRaMacState == LORAMAC_IDLE)
 	{
-		ESP_LOGI("LM", "LoRaMacState = idle");
+		ESP_LOGI(LORA_TAG, "LoRaMacState = idle");
 		lmh_mac_is_busy = false;
 		if (LoRaMacFlags.Bits.McpsReq == 1)
 		{
@@ -1425,12 +1428,12 @@ static void OnMacStateCheckTimerEvent(void)
 		}
 		if (LoRaMacFlags.Bits.McpsIndSkip == 0)
 		{
-			ESP_LOGI("LM", "Calling MacMcpsIndication");
+			ESP_LOGI(LORA_TAG, "Calling MacMcpsIndication");
 			LoRaMacPrimitives->MacMcpsIndication(&McpsIndication);
 		}
 		else
 		{
-			ESP_LOGI("LM", "Skipped MacMcpsIndication");
+			ESP_LOGI(LORA_TAG, "Skipped MacMcpsIndication");
 		}
 		LoRaMacFlags.Bits.McpsIndSkip = 0;
 		LoRaMacFlags.Bits.McpsInd = 0;
@@ -1503,19 +1506,19 @@ static void OnRxWindow2TimerEvent(void)
 	switch (LoRaMacRegion)
 	{
 	case LORAMAC_REGION_AS923:
-		ESP_LOGI("LM", "Using AS923-1");
+		ESP_LOGI(LORA_TAG, "Using AS923-1");
 		break;
 	case LORAMAC_REGION_AS923_2:
 		RxWindow2Config.Frequency = RxWindow2Config.Frequency - 1800000;
-		ESP_LOGI("LM", "Using AS923-2");
+		ESP_LOGI(LORA_TAG, "Using AS923-2");
 		break;
 	case LORAMAC_REGION_AS923_3:
 		RxWindow2Config.Frequency = RxWindow2Config.Frequency - 6600000;
-		ESP_LOGI("LM", "Using AS923-3");
+		ESP_LOGI(LORA_TAG, "Using AS923-3");
 		break;
 	case LORAMAC_REGION_AS923_4:
 		RxWindow2Config.Frequency = RxWindow2Config.Frequency - 5900000;
-		ESP_LOGI("LM", "Using AS923-4");
+		ESP_LOGI(LORA_TAG, "Using AS923-4");
 		break;
 	default:
 		break;
@@ -2025,16 +2028,16 @@ static LoRaMacStatus_t ScheduleTx(void)
 	{
 		if (IsLoRaMacNetworkJoined == JOIN_OK)
 		{
-			ESP_LOGI("LM", "Reset send_join_now to true");
+			ESP_LOGI(LORA_TAG, "Reset send_join_now to true");
 			send_join_now = true;
 		}
 
 		if ((IsLoRaMacNetworkJoined == JOIN_ONGOING) && (send_join_now))
 		{
-			ESP_LOGI("LM", "dutyCycleTimeOff was = %ld", dutyCycleTimeOff);
+			ESP_LOGI(LORA_TAG, "dutyCycleTimeOff was = %ld", dutyCycleTimeOff);
 			dutyCycleTimeOff = 0;
 			send_join_now = false;
-			ESP_LOGI("LM", "Set send_join_now to false");
+			ESP_LOGI(LORA_TAG, "Set send_join_now to false");
 		}
 	}
 	/*******************************************/
@@ -2593,7 +2596,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible(uint8_t size, LoRaMacTxInfo_t *txInfo)
 	// Verify if the fOpts and the payload fit into the maximum payload
 	if (ValidatePayloadLength(size, datarate, fOptLen) == false)
 	{
-		ESP_LOGI("LM", "LoRaMacQueryTxPossible -> ValidatePayloadLength failed size = %d DR = %d", size, datarate);
+		ESP_LOGI(LORA_TAG, "LoRaMacQueryTxPossible -> ValidatePayloadLength failed size = %d DR = %d", size, datarate);
 
 		return LORAMAC_STATUS_LENGTH_ERROR;
 	}
@@ -3330,7 +3333,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest(McpsReq_t *mcpsRequest)
 	if (((LoRaMacState & LORAMAC_TX_RUNNING) == LORAMAC_TX_RUNNING) ||
 		((LoRaMacState & LORAMAC_TX_DELAYED) == LORAMAC_TX_DELAYED))
 	{
-		ESP_LOGI("LM", "LoRaMacMcpsRequest LORAMAC_STATUS_BUSY");
+		ESP_LOGI(LORA_TAG, "LoRaMacMcpsRequest LORAMAC_STATUS_BUSY");
 
 		return LORAMAC_STATUS_BUSY;
 	}
